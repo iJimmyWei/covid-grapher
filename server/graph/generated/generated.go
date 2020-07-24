@@ -43,7 +43,7 @@ type DirectiveRoot struct {
 
 type ComplexityRoot struct {
 	Query struct {
-		Records func(childComplexity int, skill string) int
+		RecordsByCountryCode func(childComplexity int, countryCode string) int
 	}
 
 	Record struct {
@@ -55,7 +55,7 @@ type ComplexityRoot struct {
 }
 
 type QueryResolver interface {
-	Records(ctx context.Context, skill string) ([]*model.Record, error)
+	RecordsByCountryCode(ctx context.Context, countryCode string) ([]*model.Record, error)
 }
 
 type executableSchema struct {
@@ -73,17 +73,17 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 	_ = ec
 	switch typeName + "." + field {
 
-	case "Query.records":
-		if e.complexity.Query.Records == nil {
+	case "Query.recordsByCountryCode":
+		if e.complexity.Query.RecordsByCountryCode == nil {
 			break
 		}
 
-		args, err := ec.field_Query_records_args(context.TODO(), rawArgs)
+		args, err := ec.field_Query_recordsByCountryCode_args(context.TODO(), rawArgs)
 		if err != nil {
 			return 0, false
 		}
 
-		return e.complexity.Query.Records(childComplexity, args["skill"].(string)), true
+		return e.complexity.Query.RecordsByCountryCode(childComplexity, args["countryCode"].(string)), true
 
 	case "Record.cases":
 		if e.complexity.Record.Cases == nil {
@@ -175,7 +175,7 @@ type Record {
 }
 
 type Query {
-    records(skill: String!): [Record!]!
+    recordsByCountryCode(countryCode: String!): [Record!]!
 }`, BuiltIn: false},
 }
 var parsedSchema = gqlparser.MustLoadSchema(sources...)
@@ -198,17 +198,17 @@ func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs
 	return args, nil
 }
 
-func (ec *executionContext) field_Query_records_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Query_recordsByCountryCode_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
 	var arg0 string
-	if tmp, ok := rawArgs["skill"]; ok {
+	if tmp, ok := rawArgs["countryCode"]; ok {
 		arg0, err = ec.unmarshalNString2string(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	args["skill"] = arg0
+	args["countryCode"] = arg0
 	return args, nil
 }
 
@@ -248,7 +248,7 @@ func (ec *executionContext) field___Type_fields_args(ctx context.Context, rawArg
 
 // region    **************************** field.gotpl *****************************
 
-func (ec *executionContext) _Query_records(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+func (ec *executionContext) _Query_recordsByCountryCode(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -264,7 +264,7 @@ func (ec *executionContext) _Query_records(ctx context.Context, field graphql.Co
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	rawArgs := field.ArgumentMap(ec.Variables)
-	args, err := ec.field_Query_records_args(ctx, rawArgs)
+	args, err := ec.field_Query_recordsByCountryCode_args(ctx, rawArgs)
 	if err != nil {
 		ec.Error(ctx, err)
 		return graphql.Null
@@ -272,7 +272,7 @@ func (ec *executionContext) _Query_records(ctx context.Context, field graphql.Co
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().Records(rctx, args["skill"].(string))
+		return ec.resolvers.Query().RecordsByCountryCode(rctx, args["countryCode"].(string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1572,7 +1572,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("Query")
-		case "records":
+		case "recordsByCountryCode":
 			field := field
 			out.Concurrently(i, func() (res graphql.Marshaler) {
 				defer func() {
@@ -1580,7 +1580,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Query_records(ctx, field)
+				res = ec._Query_recordsByCountryCode(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&invalids, 1)
 				}

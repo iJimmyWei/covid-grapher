@@ -12,6 +12,7 @@ import (
 func main() {
 	fileUrl := "https://opendata.ecdc.europa.eu/covid19/casedistribution/json"
 	path := "mongo.init"
+	collectionName := "covid"
 
 	err := DownloadFile(path, fileUrl)
 	if err != nil {
@@ -25,10 +26,13 @@ func main() {
 	}
 
 	// Parse to allow mongo to insert these records in our collection
-	newContents := strings.Replace(string(f), "\"records\" : ", "db.covid.insert(", -1)
+	newContents := strings.Replace(string(f), "\"records\" : ", "db."+collectionName+".insert(", -1)
 	newContents = newContents[1:]
 	newContents = newContents[:len(newContents)-1]
 	newContents = newContents + ");"
+
+	// Create indexes
+	newContents = newContents + "db." + collectionName + ".createIndex( { countryterritoryCode: 1 } );"
 
 	err = ioutil.WriteFile(path, []byte(newContents), 0)
 	if err != nil {

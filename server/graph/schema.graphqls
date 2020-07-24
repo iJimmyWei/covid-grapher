@@ -10,5 +10,5 @@ type Record {
 }
 
 type Query {
-    records(skill: String!): [Record!]!
+    recordsByCountryCode(countryCode: String!): [Record!]!
 }
