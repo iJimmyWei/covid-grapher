@@ -1,0 +1,10 @@
+version: "3.7"
+services:
+  db:
+    build: ./server/seeder
+    image: db
+    container_name: mongodb
+    environment:
+      MONGO_INITDB_DATABASE: covid
+    ports:
+      - 27017:27017

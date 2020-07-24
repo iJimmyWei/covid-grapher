@@ -1,0 +1,14 @@
+# GraphQL schema example
+#
+# https://gqlgen.com/getting-started/
+
+type Record {
+  id: ID!
+  dateRep: String!
+  cases: Int!
+  deaths: Int!
+}
+
+type Query {
+    records(skill: String!): [Record!]!
+}
