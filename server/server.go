@@ -9,6 +9,7 @@ import (
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/99designs/gqlgen/handler"
 
+	"github.com/ijimmywei/covid-grapher/cors"
 	"github.com/ijimmywei/covid-grapher/db"
 	"github.com/ijimmywei/covid-grapher/graph/generated"
 	"github.com/ijimmywei/covid-grapher/graph/resolver"
@@ -33,9 +34,9 @@ func gqlHandler(db db.DB) http.HandlerFunc {
 		Resolvers: &resolver.Resolver{DB: db},
 	}
 	gh := handler.GraphQL(generated.NewExecutableSchema(config))
-	// if os.Getenv("profile") != "prod" {
-	// 	gh = cors.Disable(gh)
-	// }
+	if os.Getenv("profile") != "prod" {
+		gh = cors.Disable(gh)
+	}
 	return gh
 }
 

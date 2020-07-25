@@ -12,3 +12,7 @@ type Record {
 type Query {
     recordsByCountryCode(countryCode: String!): [Record!]!
 }
+
+schema {
+  query: Query
+}
