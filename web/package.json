@@ -32,7 +32,9 @@
     "typescript": "3.9.3"
   },
   "dependencies": {
+    "@sveltejs/pancake": "0.0.14",
     "sirv-cli": "^1.0.0",
+    "svelte-chartjs": "^1.0.1",
     "svelte-select": "^3.10.0"
   }
 }
