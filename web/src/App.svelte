@@ -19,7 +19,7 @@
 	const updateRecordsObserver = (isInit?: boolean) => {
 		const RECORD = gql`
 		{
-			recordsByCountryName(countryName: "${countryName}"){
+			recordsByCountryName(countryName: "${countryId}"){
 				id,
 				dateRep,
 				deaths,
@@ -38,6 +38,7 @@
 	}
 		
 	let countryName = "Japan"
+	let countryId = "Japan" // Not always the same as the display name, i.e United_Kingdom
 	let records = updateRecordsObserver(true);
 		
 	$: if (countryName) {
@@ -52,15 +53,17 @@
 		<p>Loading countries....</p>
 	{:then result}
 		<Select
+			selectedValue={countryName}
 			on:select={(e) => {
 				countryName = e.detail.label;
+				countryId = e.detail.value;
 			}}
 			items={result.data.getAllCountries.map((c) =>
 				({
 					"value": c,
 					"label": c.replace(/_/g, " ")
 				}))}
-		/>
+		></Select>
 	{:catch error}
 		<p>Error loading countries: {error}</p>
 	{/await}
