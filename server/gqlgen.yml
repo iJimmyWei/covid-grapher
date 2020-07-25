@@ -21,9 +21,6 @@ model:
 resolver:
   filename: graph/resolver/resolver.go
   type: Resolver
-  # layout: follow-schema
-  # dir: graph/resolver
-  # package: resolver
 
 # Optional: turn on use `gqlgen:"fieldName"` tags in your models
 # struct_tag: json
@@ -45,6 +42,9 @@ resolver:
 # modelgen, the others will be allowed when binding to fields. Configure them to
 # your liking
 models:
+  Record:
+    model:
+      - "github.com/ijimmywei/covid-grapher/graph/model.Record"
   Int:
     model:
       - github.com/99designs/gqlgen/graphql.Int

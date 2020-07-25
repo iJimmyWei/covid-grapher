@@ -1,19 +1,43 @@
 
 <script lang="ts">
-	import ApolloClient from "apollo-boost";
-	import { setClient, query } from "svelte-apollo";
+	import { ApolloClient, gql, InMemoryCache, HttpLink } from "apollo-boost";
+	import { setClient, query, getClient } from "svelte-apollo";
+	import type { Query, QueryRecordsByCountryCodeArgs } from "./types";
+	import type { QueryStore } from "apollo-client/data/queries";
+	import { createHttpLink } from "apollo-link-http";
+	import Records from "./Records.svelte";
 
-	export let name: string;
+	// export let name: string;
 
-	const client: any = new ApolloClient({uri: "localhost:8085/query"});
+	export const RECORD = gql`
+		{
+			recordsByCountryCode(countryCode: "AFG"){
+				id,
+				dateRep,
+				deaths,
+				cases
+			}
+		}
+	`;
+
+	const link = new HttpLink({
+		uri: "http://localhost:8085/query"
+	});
+	const client = new ApolloClient({link, cache: new InMemoryCache()});
 	setClient(client);
 
-	const books = query(client, { query: GET_BOOKS });
+	const records = query<Query>(client, { query: RECORD });
 </script>
 
 <main>
-	<h1>derp</h1>
-	<p>Visit the <a href="https://svelte.dev/tutorial">Svelte tutorial</a> to learn how to build Svelte apps.</p>
+	<h1>Covid 19</h1>
+	{#await $records}
+		<p>Loading records....</p>
+	{:then result}
+		<Records data={result.data} />
+	{:catch error}
+		<p>Error loading records: {error}</p>
+	{/await}
 </main>
 
 <style>
