@@ -3,34 +3,47 @@
 	import { ApolloClient, gql, InMemoryCache, HttpLink } from "apollo-boost";
 	import { setClient, query, getClient } from "svelte-apollo";
 	import type { Query, QueryRecordsByCountryCodeArgs } from "./types";
-	import type { QueryStore } from "apollo-client/data/queries";
-	import { createHttpLink } from "apollo-link-http";
 	import Records from "./Records.svelte";
+import type { QueryStore } from "apollo-client/data/queries";
 
-	// export let name: string;
+	let countryCode = "AFG"
 
-	export const RECORD = gql`
+	const link = new HttpLink({uri: "http://localhost:8085/query"});
+	const client = new ApolloClient({link, cache: new InMemoryCache()});
+	setClient(client);
+	
+	const updateRecordsObserver = (isInit?: boolean) => {
+		const RECORD = gql`
 		{
-			recordsByCountryCode(countryCode: "AFG"){
+			recordsByCountryCode(countryCode: "${countryCode}"){
 				id,
 				dateRep,
 				deaths,
 				cases
 			}
+		}`;
+
+		const observer = query<Query>(client, { query: RECORD });
+		if (isInit) {
+			return observer;
 		}
-	`;
 
-	const link = new HttpLink({
-		uri: "http://localhost:8085/query"
-	});
-	const client = new ApolloClient({link, cache: new InMemoryCache()});
-	setClient(client);
+		if (records) {
+			records = observer;
+		}
+	}
 
-	const records = query<Query>(client, { query: RECORD });
+	let records = updateRecordsObserver(true);
+
+	$: if (countryCode) {
+		updateRecordsObserver();
+		records.refetch();
+	};
 </script>
 
 <main>
-	<h1>Covid 19</h1>
+	<h1>Covid 19 - {countryCode}</h1>
+	<input bind:value={countryCode}>
 	{#await $records}
 		<p>Loading records....</p>
 	{:then result}

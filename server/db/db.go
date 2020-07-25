@@ -3,6 +3,7 @@ package db
 import (
 	"context"
 	"log"
+	"strings"
 
 	"github.com/ijimmywei/covid-grapher/graph/model"
 
@@ -43,6 +44,6 @@ func (db MongoDB) GetRecordsByCountryCode(countryCode string) ([]*model.Record, 
 
 func (db MongoDB) filterByCountryCode(countryCode string) bson.M {
 	return bson.M{
-		"countryterritoryCode": countryCode,
+		"countryterritoryCode": strings.ToUpper(countryCode),
 	}
 }

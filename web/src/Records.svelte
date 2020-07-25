@@ -6,6 +6,6 @@
 
 <main>
     {#each data.recordsByCountryCode as record (record.id)}
-        <p>{record.deaths}</p>
+        <p>{record.dateRep} - {record.deaths} deaths</p>
     {/each}
 </main>
