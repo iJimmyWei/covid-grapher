@@ -15,15 +15,17 @@ export type Record = {
   dateRep: Scalars['String'];
   cases: Scalars['Int'];
   deaths: Scalars['Int'];
+  countriesAndTerritories: Scalars['String'];
 };
 
 export type Query = {
   __typename?: 'Query';
-  recordsByCountryCode: Array<Record>;
+  recordsByCountryName: Array<Record>;
+  getAllCountries: Array<Scalars['String']>;
 };
 
 
-export type QueryRecordsByCountryCodeArgs = {
-  countryCode: Scalars['String'];
+export type QueryRecordsByCountryNameArgs = {
+  countryName: Scalars['String'];
 };
 

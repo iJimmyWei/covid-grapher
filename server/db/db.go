@@ -2,8 +2,8 @@ package db
 
 import (
 	"context"
+	"fmt"
 	"log"
-	"strings"
 
 	"github.com/ijimmywei/covid-grapher/graph/model"
 
@@ -12,7 +12,8 @@ import (
 )
 
 type DB interface {
-	GetRecordsByCountryCode(countryCode string) ([]*model.Record, error)
+	GetRecordsByCountryName(countryName string) ([]*model.Record, error)
+	GetAllCountries() ([]string, error)
 }
 
 type MongoDB struct {
@@ -26,8 +27,8 @@ func New(client *mongo.Client) *MongoDB {
 	}
 }
 
-func (db MongoDB) GetRecordsByCountryCode(countryCode string) ([]*model.Record, error) {
-	res, err := db.collection.Find(context.TODO(), db.filterByCountryCode(countryCode))
+func (db MongoDB) GetRecordsByCountryName(countryName string) ([]*model.Record, error) {
+	res, err := db.collection.Find(context.TODO(), db.filterByCountryName(countryName))
 	if err != nil {
 		log.Printf("Error while fetching records: %s", err.Error())
 		return nil, err
@@ -42,8 +43,24 @@ func (db MongoDB) GetRecordsByCountryCode(countryCode string) ([]*model.Record, 
 	return p, nil
 }
 
-func (db MongoDB) filterByCountryCode(countryCode string) bson.M {
+func (db MongoDB) GetAllCountries() ([]string, error) {
+	res, err := db.collection.Distinct(context.TODO(), "countriesAndTerritories", bson.D{{}})
+
+	if err != nil {
+		log.Printf("Error while fetching countries: %s", err.Error())
+		return nil, err
+	}
+	var p []string
+	for _, value := range res {
+		s := fmt.Sprint(value)
+		p = append(p, s)
+	}
+
+	return p, nil
+}
+
+func (db MongoDB) filterByCountryName(countryName string) bson.M {
 	return bson.M{
-		"countryterritoryCode": strings.ToUpper(countryCode),
+		"countriesAndTerritories": countryName,
 	}
 }

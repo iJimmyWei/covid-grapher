@@ -1,11 +1,11 @@
 <script lang="ts">
-    import type { Query } from "./types";
+    import type { Query } from "./generated/graphql";
 
     export let data: Query;
 </script>
 
 <main>
-    {#each data.recordsByCountryCode as record (record.id)}
+    {#each data.recordsByCountryName as record (record.id)}
         <p>{record.dateRep} - {record.deaths} deaths</p>
     {/each}
 </main>

@@ -43,19 +43,22 @@ type DirectiveRoot struct {
 
 type ComplexityRoot struct {
 	Query struct {
-		RecordsByCountryCode func(childComplexity int, countryCode string) int
+		GetAllCountries      func(childComplexity int) int
+		RecordsByCountryName func(childComplexity int, countryName string) int
 	}
 
 	Record struct {
-		Cases   func(childComplexity int) int
-		DateRep func(childComplexity int) int
-		Deaths  func(childComplexity int) int
-		ID      func(childComplexity int) int
+		Cases                   func(childComplexity int) int
+		CountriesAndTerritories func(childComplexity int) int
+		DateRep                 func(childComplexity int) int
+		Deaths                  func(childComplexity int) int
+		ID                      func(childComplexity int) int
 	}
 }
 
 type QueryResolver interface {
-	RecordsByCountryCode(ctx context.Context, countryCode string) ([]*model.Record, error)
+	RecordsByCountryName(ctx context.Context, countryName string) ([]*model.Record, error)
+	GetAllCountries(ctx context.Context) ([]string, error)
 }
 
 type executableSchema struct {
@@ -73,17 +76,24 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 	_ = ec
 	switch typeName + "." + field {
 
-	case "Query.recordsByCountryCode":
-		if e.complexity.Query.RecordsByCountryCode == nil {
+	case "Query.getAllCountries":
+		if e.complexity.Query.GetAllCountries == nil {
 			break
 		}
 
-		args, err := ec.field_Query_recordsByCountryCode_args(context.TODO(), rawArgs)
+		return e.complexity.Query.GetAllCountries(childComplexity), true
+
+	case "Query.recordsByCountryName":
+		if e.complexity.Query.RecordsByCountryName == nil {
+			break
+		}
+
+		args, err := ec.field_Query_recordsByCountryName_args(context.TODO(), rawArgs)
 		if err != nil {
 			return 0, false
 		}
 
-		return e.complexity.Query.RecordsByCountryCode(childComplexity, args["countryCode"].(string)), true
+		return e.complexity.Query.RecordsByCountryName(childComplexity, args["countryName"].(string)), true
 
 	case "Record.cases":
 		if e.complexity.Record.Cases == nil {
@@ -91,6 +101,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Record.Cases(childComplexity), true
+
+	case "Record.countriesAndTerritories":
+		if e.complexity.Record.CountriesAndTerritories == nil {
+			break
+		}
+
+		return e.complexity.Record.CountriesAndTerritories(childComplexity), true
 
 	case "Record.dateRep":
 		if e.complexity.Record.DateRep == nil {
@@ -163,19 +180,17 @@ func (ec *executionContext) introspectType(name string) (*introspection.Type, er
 }
 
 var sources = []*ast.Source{
-	&ast.Source{Name: "../schema/schema.graphql", Input: `# GraphQL schema example
-#
-# https://gqlgen.com/getting-started/
-
-type Record {
+	&ast.Source{Name: "../schema/schema.graphql", Input: `type Record {
   id: ID!
   dateRep: String!
   cases: Int!
   deaths: Int!
+  countriesAndTerritories: String!
 }
 
 type Query {
-    recordsByCountryCode(countryCode: String!): [Record!]!
+    recordsByCountryName(countryName: String!): [Record!]!
+    getAllCountries: [String!]!
 }
 
 schema {
@@ -202,17 +217,17 @@ func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs
 	return args, nil
 }
 
-func (ec *executionContext) field_Query_recordsByCountryCode_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Query_recordsByCountryName_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
 	var arg0 string
-	if tmp, ok := rawArgs["countryCode"]; ok {
+	if tmp, ok := rawArgs["countryName"]; ok {
 		arg0, err = ec.unmarshalNString2string(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	args["countryCode"] = arg0
+	args["countryName"] = arg0
 	return args, nil
 }
 
@@ -252,7 +267,7 @@ func (ec *executionContext) field___Type_fields_args(ctx context.Context, rawArg
 
 // region    **************************** field.gotpl *****************************
 
-func (ec *executionContext) _Query_recordsByCountryCode(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+func (ec *executionContext) _Query_recordsByCountryName(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -268,7 +283,7 @@ func (ec *executionContext) _Query_recordsByCountryCode(ctx context.Context, fie
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	rawArgs := field.ArgumentMap(ec.Variables)
-	args, err := ec.field_Query_recordsByCountryCode_args(ctx, rawArgs)
+	args, err := ec.field_Query_recordsByCountryName_args(ctx, rawArgs)
 	if err != nil {
 		ec.Error(ctx, err)
 		return graphql.Null
@@ -276,7 +291,7 @@ func (ec *executionContext) _Query_recordsByCountryCode(ctx context.Context, fie
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().RecordsByCountryCode(rctx, args["countryCode"].(string))
+		return ec.resolvers.Query().RecordsByCountryName(rctx, args["countryName"].(string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -291,6 +306,40 @@ func (ec *executionContext) _Query_recordsByCountryCode(ctx context.Context, fie
 	res := resTmp.([]*model.Record)
 	fc.Result = res
 	return ec.marshalNRecord2ᚕᚖgithubᚗcomᚋijimmyweiᚋcovidᚑgrapherᚋgraphᚋmodelᚐRecordᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Query_getAllCountries(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "Query",
+		Field:    field,
+		Args:     nil,
+		IsMethod: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().GetAllCountries(rctx)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]string)
+	fc.Result = res
+	return ec.marshalNString2ᚕstringᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query___type(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -496,6 +545,40 @@ func (ec *executionContext) _Record_deaths(ctx context.Context, field graphql.Co
 	res := resTmp.(int)
 	fc.Result = res
 	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Record_countriesAndTerritories(ctx context.Context, field graphql.CollectedField, obj *model.Record) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "Record",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CountriesAndTerritories, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) ___Directive_name(ctx context.Context, field graphql.CollectedField, obj *introspection.Directive) (ret graphql.Marshaler) {
@@ -1576,7 +1659,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("Query")
-		case "recordsByCountryCode":
+		case "recordsByCountryName":
 			field := field
 			out.Concurrently(i, func() (res graphql.Marshaler) {
 				defer func() {
@@ -1584,7 +1667,21 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Query_recordsByCountryCode(ctx, field)
+				res = ec._Query_recordsByCountryName(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			})
+		case "getAllCountries":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_getAllCountries(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&invalids, 1)
 				}
@@ -1633,6 +1730,11 @@ func (ec *executionContext) _Record(ctx context.Context, sel ast.SelectionSet, o
 			}
 		case "deaths":
 			out.Values[i] = ec._Record_deaths(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "countriesAndTerritories":
+			out.Values[i] = ec._Record_countriesAndTerritories(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
@@ -1997,6 +2099,35 @@ func (ec *executionContext) marshalNString2string(ctx context.Context, sel ast.S
 		}
 	}
 	return res
+}
+
+func (ec *executionContext) unmarshalNString2ᚕstringᚄ(ctx context.Context, v interface{}) ([]string, error) {
+	var vSlice []interface{}
+	if v != nil {
+		if tmp1, ok := v.([]interface{}); ok {
+			vSlice = tmp1
+		} else {
+			vSlice = []interface{}{v}
+		}
+	}
+	var err error
+	res := make([]string, len(vSlice))
+	for i := range vSlice {
+		res[i], err = ec.unmarshalNString2string(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) marshalNString2ᚕstringᚄ(ctx context.Context, sel ast.SelectionSet, v []string) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	for i := range v {
+		ret[i] = ec.marshalNString2string(ctx, sel, v[i])
+	}
+
+	return ret
 }
 
 func (ec *executionContext) marshalN__Directive2githubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐDirective(ctx context.Context, sel ast.SelectionSet, v introspection.Directive) graphql.Marshaler {

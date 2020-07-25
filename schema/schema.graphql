@@ -1,16 +1,14 @@
-# GraphQL schema example
-#
-# https://gqlgen.com/getting-started/
-
 type Record {
   id: ID!
   dateRep: String!
   cases: Int!
   deaths: Int!
+  countriesAndTerritories: String!
 }
 
 type Query {
-    recordsByCountryCode(countryCode: String!): [Record!]!
+    recordsByCountryName(countryName: String!): [Record!]!
+    getAllCountries: [String!]!
 }
 
 schema {

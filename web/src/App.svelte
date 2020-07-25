@@ -2,20 +2,24 @@
 <script lang="ts">
 	import { ApolloClient, gql, InMemoryCache, HttpLink } from "apollo-boost";
 	import { setClient, query, getClient } from "svelte-apollo";
-	import type { Query, QueryRecordsByCountryCodeArgs } from "./types";
+	import type { Query } from "./generated/graphql";
 	import Records from "./Records.svelte";
-import type { QueryStore } from "apollo-client/data/queries";
-
-	let countryCode = "AFG"
+	import Select from 'svelte-select';
 
 	const link = new HttpLink({uri: "http://localhost:8085/query"});
 	const client = new ApolloClient({link, cache: new InMemoryCache()});
 	setClient(client);
 	
+	const COUNTRIES = gql`
+	{
+		getAllCountries
+	}`;
+	const countryList = query<Query>(client, { query: COUNTRIES });
+
 	const updateRecordsObserver = (isInit?: boolean) => {
 		const RECORD = gql`
 		{
-			recordsByCountryCode(countryCode: "${countryCode}"){
+			recordsByCountryName(countryName: "${countryName}"){
 				id,
 				dateRep,
 				deaths,
@@ -27,29 +31,46 @@ import type { QueryStore } from "apollo-client/data/queries";
 		if (isInit) {
 			return observer;
 		}
-
+		
 		if (records) {
 			records = observer;
 		}
 	}
-
+		
+	let countryName = "Japan"
 	let records = updateRecordsObserver(true);
-
-	$: if (countryCode) {
+		
+	$: if (countryName) {
 		updateRecordsObserver();
 		records.refetch();
 	};
 </script>
 
 <main>
-	<h1>Covid 19 - {countryCode}</h1>
-	<input bind:value={countryCode}>
+	<h1>Covid 19 - {countryName}</h1>
+	{#await $countryList}
+		<p>Loading countries....</p>
+	{:then result}
+		<Select
+			on:select={(e) => {
+				countryName = e.detail.label;
+			}}
+			items={result.data.getAllCountries.map((c) =>
+				({
+					"value": c,
+					"label": c.replace(/_/g, " ")
+				}))}
+		/>
+	{:catch error}
+		<p>Error loading countries: {error}</p>
+	{/await}
+
 	{#await $records}
 		<p>Loading records....</p>
 	{:then result}
 		<Records data={result.data} />
 	{:catch error}
-		<p>Error loading records: {error}</p>
+		<p>{error}</p>
 	{/await}
 </main>
 
