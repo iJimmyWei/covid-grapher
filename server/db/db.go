@@ -12,7 +12,7 @@ import (
 )
 
 type DB interface {
-	GetRecordsByCountryName(countryName string) ([]*model.Record, error)
+	GetRecords(countryName *string) ([]*model.Record, error)
 	GetAllCountries() ([]string, error)
 }
 
@@ -27,8 +27,16 @@ func New(client *mongo.Client) *MongoDB {
 	}
 }
 
-func (db MongoDB) GetRecordsByCountryName(countryName string) ([]*model.Record, error) {
-	res, err := db.collection.Find(context.TODO(), db.filterByCountryName(countryName))
+func (db MongoDB) GetRecords(countryName *string) ([]*model.Record, error) {
+	var res *mongo.Cursor
+	var err error
+
+	if countryName != nil {
+		res, err = db.collection.Find(context.TODO(), db.filterByCountryName(*countryName))
+	} else {
+		res, err = db.collection.Find(context.TODO(), bson.M{})
+	}
+
 	if err != nil {
 		log.Printf("Error while fetching records: %s", err.Error())
 		return nil, err

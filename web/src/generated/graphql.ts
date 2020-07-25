@@ -16,16 +16,17 @@ export type Record = {
   cases: Scalars['Int'];
   deaths: Scalars['Int'];
   countriesAndTerritories: Scalars['String'];
+  cumulative_14d_per_10000: Scalars['String'];
 };
 
 export type Query = {
   __typename?: 'Query';
-  recordsByCountryName: Array<Record>;
+  getRecords: Array<Record>;
   getAllCountries: Array<Scalars['String']>;
 };
 
 
-export type QueryRecordsByCountryNameArgs = {
-  countryName: Scalars['String'];
+export type QueryGetRecordsArgs = {
+  countryName?: Maybe<Scalars['String']>;
 };
 

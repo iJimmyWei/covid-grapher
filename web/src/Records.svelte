@@ -1,9 +1,9 @@
 <script lang="ts">
     import type { Query } from "./generated/graphql";
     import Line from "svelte-chartjs/src/Line.svelte"
-    export let data: Pick<Query, "recordsByCountryName">;
+    export let data: Pick<Query, "getRecords">;
 
-    const sortedData = data.recordsByCountryName
+    const sortedData = data.getRecords
         .filter((c) => c.cases >= 0 && c.deaths >= 0) // Strip away outliers
         .map((e) => e).sort((a, b) => a > b ? 1 : 0)
         .reverse();

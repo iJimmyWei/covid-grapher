@@ -19,7 +19,7 @@
 	const updateRecordsObserver = (isInit?: boolean) => {
 		const RECORD = gql`
 		{
-			recordsByCountryName(countryName: "${countryId}"){
+			getRecords(countryName: "${countryId}"){
 				id,
 				dateRep,
 				deaths,
