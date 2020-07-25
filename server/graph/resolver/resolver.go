@@ -16,8 +16,8 @@ type Resolver struct {
 	DB db.DB
 }
 
-func (r *queryResolver) RecordsByCountryCode(ctx context.Context, id string) ([]*model.Record, error) {
-	return r.DB.GetRecordsByCountryCode(id)
+func (r *queryResolver) RecordsByCountryCode(ctx context.Context, countryCode string) ([]*model.Record, error) {
+	return r.DB.GetRecordsByCountryCode(countryCode)
 }
 
 // Query returns generated.QueryResolver implementation.
