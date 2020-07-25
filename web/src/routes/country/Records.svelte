@@ -1,5 +1,5 @@
 <script lang="ts">
-    import type { Query } from "./generated/graphql";
+    import type { Query } from "../generated/graphql";
     import Line from "svelte-chartjs/src/Line.svelte"
     export let data: Pick<Query, "getRecords">;
 

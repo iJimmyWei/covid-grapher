@@ -4,7 +4,7 @@
   "scripts": {
     "build": "rollup -c",
     "dev": "rollup -c -w",
-    "start": "sirv public",
+    "start": "sirv public --single --host 0.0.0.0",
     "validate": "svelte-check",
     "gen": "graphql-codegen --config codegen.yml"
   },
@@ -35,6 +35,7 @@
     "@sveltejs/pancake": "0.0.14",
     "sirv-cli": "^1.0.0",
     "svelte-chartjs": "^1.0.1",
+    "svelte-routing": "^1.4.2",
     "svelte-select": "^3.10.0"
   }
 }
