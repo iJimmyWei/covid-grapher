@@ -12,7 +12,7 @@
     labels: sortedData.map((d) => d.dateRep),
     datasets: [
       {
-        label: "Number of Deaths",
+        label: "Number of Daily Deaths",
         fill: false,
         lineTension: 0.1,
         backgroundColor: "rgba(225, 204,230, .3)",
@@ -33,7 +33,7 @@
         data: sortedData.map((d) => d.deaths)
       },
       {
-        label: "Number of Cases",
+        label: "Number of Daily Cases",
         fill: false,
         lineTension: 0.1,
         backgroundColor: "rgba(71, 225, 167, 0.5)",
@@ -55,8 +55,14 @@
       },
     ]
   };
+
+  let options = {
+    legend: {
+      position: "bottom"
+    },
+  };
 </script>
 
 <main>
-    <Line data={dataLine} />
+    <Line data={dataLine} options={options} />
 </main>

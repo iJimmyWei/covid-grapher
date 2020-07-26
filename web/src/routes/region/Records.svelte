@@ -53,8 +53,14 @@
       },
     ]
   };
+
+  let options = {
+    legend: {
+      position: "bottom"
+    },
+  };
 </script>
 
 <main>
-    <Line data={dataLine} />
+    <Line data={dataLine} options={options} />
 </main>

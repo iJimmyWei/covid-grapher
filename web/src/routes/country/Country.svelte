@@ -55,7 +55,7 @@
 	{:then result}
 		<Select
 			containerStyles={
-				"text-transform: capitalize"
+				"text-transform: capitalize; margin-bottom: 32px;"
 			}
 			selectedValue={{
 				"value": countryId,
@@ -71,7 +71,8 @@
 					})
 				)
 			}
-		></Select>
+		>
+		</Select>
 	{:catch error}
 		<p>Error loading countries: {error}</p>
 	{/await}

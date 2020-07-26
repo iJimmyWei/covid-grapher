@@ -51,7 +51,7 @@
 	{:then result}
 		<Select
 			containerStyles={
-				"text-transform: capitalize"
+				"text-transform: capitalize; margin-bottom: 32px;"
 			}
 			selectedValue={region}
 			on:select={(e) => {

@@ -36,6 +36,7 @@
   let options = {
     legend: {
       display: false,
+      position: "bottom"
     },
     hover: {
         animationDuration: 0,
