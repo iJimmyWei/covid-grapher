@@ -1,14 +1,11 @@
 
 <script lang="ts">
-	import { ApolloClient, gql, InMemoryCache, HttpLink } from "apollo-boost";
-	import { setClient, query, getClient } from "svelte-apollo";
+	import { gql } from "apollo-boost";
+	import { query, getClient } from "svelte-apollo";
 	import type { Query } from "../../generated/graphql";
 	import Records from "./Records.svelte";
-	import Select from 'svelte-select';
 
-	const link = new HttpLink({uri: "http://0.0.0.0:8085/query"});
-	const client = new ApolloClient({link, cache: new InMemoryCache()});
-	setClient(client);
+	const client = getClient();
 
 	const updateRecordsObserver = (isInit?: boolean) => {
 		const RECORD = gql`
