@@ -10,15 +10,16 @@
   
   <Router url="{url}">
     <nav>
-      <NavLink to="/">Home</NavLink>
-      <NavLink to="country">Individual Country</NavLink>
-      <NavLink to="region/asia">Asia</NavLink>
-      <NavLink to="region/europe">Europe</NavLink>
-      <NavLink to="region/americas">Americas</NavLink>
+      <NavLink to="/">Home</NavLink> -
+      <NavLink to="country">Individual Country</NavLink> -
+      <NavLink to="region/asia">Asia</NavLink> -
+      <NavLink to="region/europe">Europe</NavLink> -
+      <NavLink to="region/americas">Americas</NavLink> -
       <NavLink to="worldwide">Worldwide</NavLink>
     </nav>
     <div>
       <Route path="/" component="{Country}" />
+      <Route path="/country/:countryId" component="{Country}" />
       <Route path="/country" component="{Country}" />
       <Route path="/worldwide" component="{Worldwide}" />
     </div>

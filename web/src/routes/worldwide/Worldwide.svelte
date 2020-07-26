@@ -37,7 +37,7 @@
 	<h1>Covid 19 - Worldwide</h1>
 	<h2>Cumulative Cases over 14 days, per 10000</h2>
 	{#await $records}
-		<p>Loading records....</p>
+		<p>Loading worldwide data....</p>
 	{:then result}
 		<Records data={result.data} />
 	{:catch error}

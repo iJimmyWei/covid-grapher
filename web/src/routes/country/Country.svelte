@@ -2,9 +2,10 @@
 <script lang="ts">
 	import { ApolloClient, gql, InMemoryCache, HttpLink } from "apollo-boost";
 	import { setClient, query, getClient } from "svelte-apollo";
-	import type { Query } from "../generated/graphql";
+	import type { Query } from "../../generated/graphql";
 	import Records from "./Records.svelte";
 	import Select from 'svelte-select';
+	import { navigate } from "svelte-routing";
 
 	const link = new HttpLink({uri: "http://192.168.8.108:8085/query"});
 	const client = new ApolloClient({link, cache: new InMemoryCache()});
@@ -37,13 +38,15 @@
 		}
 	}
 		
-	let countryName = "Japan"
-	let countryId = "Japan" // Not always the same as the display name, i.e United_Kingdom
+	export let countryId = "Japan"
+	let countryName = countryId.replace(/_/g, " ")
 	let records = updateRecordsObserver(true);
 		
-	$: if (countryName) {
+	$: if (countryId) {
 		updateRecordsObserver();
 		records.refetch();
+
+		countryName = countryId.replace(/_/g, " ")
 	};
 </script>
 
@@ -53,16 +56,20 @@
 		<p>Loading countries....</p>
 	{:then result}
 		<Select
-			selectedValue={countryName}
+			selectedValue={{
+				"value": countryId,
+				"label": countryName
+			}}
 			on:select={(e) => {
-				countryName = e.detail.label;
-				countryId = e.detail.value;
+				navigate("/country/" + e.detail.value);
 			}}
 			items={result.data.getAllCountries.map((c) =>
-				({
-					"value": c,
-					"label": c.replace(/_/g, " ")
-				}))}
+					({
+						"value": c,
+						"label": c.replace(/_/g, " ")
+					})
+				)
+			}
 		></Select>
 	{:catch error}
 		<p>Error loading countries: {error}</p>
