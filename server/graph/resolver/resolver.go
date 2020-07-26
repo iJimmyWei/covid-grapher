@@ -16,8 +16,12 @@ type Resolver struct {
 	DB db.DB
 }
 
-func (r *queryResolver) GetRecords(ctx context.Context, countryName *string, region *string) ([]*model.Record, error) {
-	return r.DB.GetRecords(countryName, region)
+func (r *queryResolver) GetRecords(ctx context.Context, countryName *string) ([]*model.Record, error) {
+	return r.DB.GetRecords(countryName)
+}
+
+func (r *queryResolver) GetRecordsByRegion(ctx context.Context, region *string) ([]*model.Region, error) {
+	return r.DB.GetRecordsByRegion(region)
 }
 
 func (r *queryResolver) GetAllCountries(ctx context.Context) ([]string, error) {

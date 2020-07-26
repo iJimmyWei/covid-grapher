@@ -3,12 +3,19 @@ type Record {
   dateRep: String!
   cases: Int!
   deaths: Int!
-  countriesAndTerritories: String!
+  countriesAndTerritories: String
   cumulative_14d_per_10000: String!
 }
 
+type Region {
+  dateRep: String!
+  cases: Int!
+  deaths: Int!
+}
+
 type Query {
-    getRecords(countryName: String, region: String): [Record!]!
+    getRecords(countryName: String): [Record!]!
+    getRecordsByRegion(region: String): [Region!]!
     getAllCountries: [String!]!
 }
 
