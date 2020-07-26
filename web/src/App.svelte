@@ -30,3 +30,28 @@
     <Route path="/worldwide" component="{Worldwide}" />
   </div>
 </Router>
+
+
+<style>
+	:global(main) {
+		text-align: center;
+		padding: 1em;
+		max-width: 240px;
+		margin: 0 auto;
+    max-width: 1280px;
+	}
+
+	:global(h1) {
+		color: #ff3e00;
+		text-transform: uppercase;
+		font-size: 4em;
+		font-weight: 100;
+	}
+
+  :global(h2) {
+		color: #ff3e00;
+		text-transform: uppercase;
+		font-size: 2em;
+		font-weight: 100;
+  }
+</style>
