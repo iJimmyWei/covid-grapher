@@ -15,8 +15,9 @@ type Region {
 
 type Query {
     getRecords(countryName: String): [Record!]!
-    getRecordsByRegion(region: String): [Region!]!
+    getRecordsByRegion(region: String!): [Region!]!
     getAllCountries: [String!]!
+    getAllRegions: [String!]!
 }
 
 schema {

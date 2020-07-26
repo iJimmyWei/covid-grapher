@@ -20,12 +20,16 @@ func (r *queryResolver) GetRecords(ctx context.Context, countryName *string) ([]
 	return r.DB.GetRecords(countryName)
 }
 
-func (r *queryResolver) GetRecordsByRegion(ctx context.Context, region *string) ([]*model.Region, error) {
+func (r *queryResolver) GetRecordsByRegion(ctx context.Context, region string) ([]*model.Region, error) {
 	return r.DB.GetRecordsByRegion(region)
 }
 
 func (r *queryResolver) GetAllCountries(ctx context.Context) ([]string, error) {
 	return r.DB.GetAllCountries()
+}
+
+func (r *queryResolver) GetAllRegions(ctx context.Context) ([]string, error) {
+	return r.DB.GetAllRegions()
 }
 
 // Query returns generated.QueryResolver implementation.

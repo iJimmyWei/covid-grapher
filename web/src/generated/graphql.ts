@@ -15,19 +15,31 @@ export type Record = {
   dateRep: Scalars['String'];
   cases: Scalars['Int'];
   deaths: Scalars['Int'];
-  countriesAndTerritories: Scalars['String'];
+  countriesAndTerritories?: Maybe<Scalars['String']>;
   cumulative_14d_per_10000: Scalars['String'];
+};
+
+export type Region = {
+  __typename?: 'Region';
+  dateRep: Scalars['String'];
+  cases: Scalars['Int'];
+  deaths: Scalars['Int'];
 };
 
 export type Query = {
   __typename?: 'Query';
   getRecords: Array<Record>;
+  getRecordsByRegion: Array<Region>;
   getAllCountries: Array<Scalars['String']>;
 };
 
 
 export type QueryGetRecordsArgs = {
   countryName?: Maybe<Scalars['String']>;
+};
+
+
+export type QueryGetRecordsByRegionArgs = {
   region?: Maybe<Scalars['String']>;
 };
 

@@ -16,8 +16,9 @@ import (
 
 type DB interface {
 	GetRecords(countryName *string) ([]*model.Record, error)
-	GetRecordsByRegion(region *string) ([]*model.Region, error)
+	GetRecordsByRegion(region string) ([]*model.Region, error)
 	GetAllCountries() ([]string, error)
+	GetAllRegions() ([]string, error)
 }
 
 type MongoDB struct {
@@ -55,11 +56,11 @@ func (db MongoDB) GetRecords(countryName *string) ([]*model.Record, error) {
 	return p, nil
 }
 
-func (db MongoDB) GetRecordsByRegion(region *string) ([]*model.Region, error) {
+func (db MongoDB) GetRecordsByRegion(region string) ([]*model.Region, error) {
 	var res *mongo.Cursor
 	var err error
 
-	res, err = db.collection.Find(context.TODO(), db.filterByRegion(*region))
+	res, err = db.collection.Find(context.TODO(), db.filterByRegion(region))
 
 	if err != nil {
 		log.Printf("Error while fetching records: %s", err.Error())
@@ -121,6 +122,22 @@ func (db MongoDB) GetAllCountries() ([]string, error) {
 
 	if err != nil {
 		log.Printf("Error while fetching countries: %s", err.Error())
+		return nil, err
+	}
+	var p []string
+	for _, value := range res {
+		s := fmt.Sprint(value)
+		p = append(p, s)
+	}
+
+	return p, nil
+}
+
+func (db MongoDB) GetAllRegions() ([]string, error) {
+	res, err := db.collection.Distinct(context.TODO(), "continentExp", bson.D{{}})
+
+	if err != nil {
+		log.Printf("Error while fetching regions: %s", err.Error())
 		return nil, err
 	}
 	var p []string

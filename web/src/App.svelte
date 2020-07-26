@@ -12,10 +12,8 @@
   <Router url="{url}">
     <nav>
       <NavLink to="/">Home</NavLink> -
-      <NavLink to="country">Individual Country</NavLink> -
-      <NavLink to="region/asia">Asia</NavLink> -
-      <NavLink to="region/europe">Europe</NavLink> -
-      <NavLink to="region/americas">Americas</NavLink> -
+      <NavLink to="country">Country</NavLink> -
+      <NavLink to="region/asia">Region</NavLink> -
       <NavLink to="worldwide">Worldwide</NavLink>
     </nav>
     <div>

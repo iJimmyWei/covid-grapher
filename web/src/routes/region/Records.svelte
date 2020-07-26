@@ -1,18 +1,16 @@
 <script lang="ts">
     import type { Query } from "../../generated/graphql";
     import Line from "svelte-chartjs/src/Line.svelte"
-    export let data: Pick<Query, "getRecords">;
+    export let data: Pick<Query, "getRecordsByRegion">;
 
-    const sortedData = data.getRecords
-        .filter((c) => c.cases >= 0 && c.deaths >= 0) // Strip away outliers
-        .map((e) => e).sort((a, b) => a > b ? 1 : 0)
-        .reverse();
+    const sortedData = data.getRecordsByRegion
+        .filter((c) => c.cases >= 0 && c.deaths >= 0); // Strip away outliers
 
     let dataLine = {
-    labels: sortedData.map((d) => d.dateRep),
+    labels: data.getRecordsByRegion.map((d) => d.dateRep),
     datasets: [
       {
-        label: "Number of Deaths",
+        label: "Number of Daily Deaths",
         fill: false,
         lineTension: 0.1,
         backgroundColor: "rgba(225, 204,230, .3)",
@@ -33,7 +31,7 @@
         data: sortedData.map((d) => d.deaths)
       },
       {
-        label: "Number of Cases",
+        label: "Number of Daily Cases",
         fill: false,
         lineTension: 0.1,
         backgroundColor: "rgba(71, 225, 167, 0.5)",
