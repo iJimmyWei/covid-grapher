@@ -8,7 +8,7 @@ type Record {
 }
 
 type Query {
-    getRecords(countryName: String): [Record!]!
+    getRecords(countryName: String, region: String): [Record!]!
     getAllCountries: [String!]!
 }
 

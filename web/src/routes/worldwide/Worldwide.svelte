@@ -2,7 +2,7 @@
 <script lang="ts">
 	import { ApolloClient, gql, InMemoryCache, HttpLink } from "apollo-boost";
 	import { setClient, query, getClient } from "svelte-apollo";
-	import type { Query } from "../generated/graphql";
+	import type { Query } from "../../generated/graphql";
 	import Records from "./Records.svelte";
 	import Select from 'svelte-select';
 

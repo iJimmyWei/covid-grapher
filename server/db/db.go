@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"strings"
 
 	"github.com/ijimmywei/covid-grapher/graph/model"
 
@@ -12,7 +13,7 @@ import (
 )
 
 type DB interface {
-	GetRecords(countryName *string) ([]*model.Record, error)
+	GetRecords(countryName *string, region *string) ([]*model.Record, error)
 	GetAllCountries() ([]string, error)
 }
 
@@ -27,12 +28,14 @@ func New(client *mongo.Client) *MongoDB {
 	}
 }
 
-func (db MongoDB) GetRecords(countryName *string) ([]*model.Record, error) {
+func (db MongoDB) GetRecords(countryName *string, region *string) ([]*model.Record, error) {
 	var res *mongo.Cursor
 	var err error
 
 	if countryName != nil {
 		res, err = db.collection.Find(context.TODO(), db.filterByCountryName(*countryName))
+	} else if region != nil {
+		res, err = db.collection.Find(context.TODO(), db.filterByRegion(*region))
 	} else {
 		res, err = db.collection.Find(context.TODO(), bson.M{})
 	}
@@ -69,6 +72,24 @@ func (db MongoDB) GetAllCountries() ([]string, error) {
 
 func (db MongoDB) filterByCountryName(countryName string) bson.M {
 	return bson.M{
-		"countriesAndTerritories": countryName,
+		"countriesAndTerritories": ToTitleSnakecase(countryName),
 	}
+}
+
+func (db MongoDB) filterByRegion(region string) bson.M {
+	return bson.M{
+		"continentExp": ToTitleSnakecase(region),
+	}
+}
+
+func ToTitleSnakecase(str string) string {
+	str = strings.Replace(str, "_", " ", -1)
+	str = strings.Title(str)
+	str = strings.Replace(str, " ", "_", -1)
+
+	str = strings.Replace(str, "Of", "of", -1)
+	str = strings.Replace(str, "The", "the", -1)
+	str = strings.Replace(str, "And", "and", -1)
+
+	return str
 }

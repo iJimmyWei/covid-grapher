@@ -4,23 +4,16 @@
 	import { setClient, query, getClient } from "svelte-apollo";
 	import type { Query } from "../../generated/graphql";
 	import Records from "./Records.svelte";
-	import Select from 'svelte-select';
 	import { navigate } from "svelte-routing";
 
 	const link = new HttpLink({uri: "http://192.168.8.108:8085/query"});
 	const client = new ApolloClient({link, cache: new InMemoryCache()});
 	setClient(client);
-	
-	const COUNTRIES = gql`
-	{
-		getAllCountries
-	}`;
-	const countryList = query<Query>(client, { query: COUNTRIES });
 
 	const updateRecordsObserver = (isInit?: boolean) => {
 		const RECORD = gql`
 		{
-			getRecords(countryName: "${countryId}"){
+			getRecords(region: "${region}"){
 				id,
 				dateRep,
 				deaths,
@@ -38,49 +31,16 @@
 		}
 	}
 		
-	export let countryId = "Japan"
-	let countryName = countryId.replace(/_/g, " ")
+	export let region = "Asia";
 	let records = updateRecordsObserver(true);
-
-	$: if (countryId) {
-		updateRecordsObserver();
-		records.refetch();
-
-		countryName = countryId.replace(/_/g, " ")
-	};
 </script>
 
 <main>
-	<h1>Covid 19 - {countryName}</h1>
-	{#await $countryList}
-		<p>Loading countries....</p>
-	{:then result}
-		<Select
-			containerStyles={
-				"text-transform: capitalize"
-			}
-			selectedValue={{
-				"value": countryId,
-				"label": countryName
-			}}
-			on:select={(e) => {
-				navigate("/country/" + e.detail.value.toLowerCase());
-			}}
-			items={result.data.getAllCountries.map((c) =>
-					({
-						"value": c,
-						"label": c.replace(/_/g, " ")
-					})
-				)
-			}
-		></Select>
-	{:catch error}
-		<p>Error loading countries: {error}</p>
-	{/await}
-
+	<h1>Covid 19 - {region}</h1>
 	{#await $records}
 		<p>Loading records....</p>
 	{:then result}
+		{console.log(result)}
 		<Records data={result.data} />
 	{:catch error}
 		<p>{error}</p>

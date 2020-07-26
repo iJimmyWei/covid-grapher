@@ -28,5 +28,6 @@ export type Query = {
 
 export type QueryGetRecordsArgs = {
   countryName?: Maybe<Scalars['String']>;
+  region?: Maybe<Scalars['String']>;
 };
 

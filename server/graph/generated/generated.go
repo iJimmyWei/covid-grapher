@@ -44,7 +44,7 @@ type DirectiveRoot struct {
 type ComplexityRoot struct {
 	Query struct {
 		GetAllCountries func(childComplexity int) int
-		GetRecords      func(childComplexity int, countryName *string) int
+		GetRecords      func(childComplexity int, countryName *string, region *string) int
 	}
 
 	Record struct {
@@ -58,7 +58,7 @@ type ComplexityRoot struct {
 }
 
 type QueryResolver interface {
-	GetRecords(ctx context.Context, countryName *string) ([]*model.Record, error)
+	GetRecords(ctx context.Context, countryName *string, region *string) ([]*model.Record, error)
 	GetAllCountries(ctx context.Context) ([]string, error)
 }
 
@@ -94,7 +94,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.GetRecords(childComplexity, args["countryName"].(*string)), true
+		return e.complexity.Query.GetRecords(childComplexity, args["countryName"].(*string), args["region"].(*string)), true
 
 	case "Record.cases":
 		if e.complexity.Record.Cases == nil {
@@ -198,7 +198,7 @@ var sources = []*ast.Source{
 }
 
 type Query {
-    getRecords(countryName: String): [Record!]!
+    getRecords(countryName: String, region: String): [Record!]!
     getAllCountries: [String!]!
 }
 
@@ -237,6 +237,14 @@ func (ec *executionContext) field_Query_getRecords_args(ctx context.Context, raw
 		}
 	}
 	args["countryName"] = arg0
+	var arg1 *string
+	if tmp, ok := rawArgs["region"]; ok {
+		arg1, err = ec.unmarshalOString2ᚖstring(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["region"] = arg1
 	return args, nil
 }
 
@@ -300,7 +308,7 @@ func (ec *executionContext) _Query_getRecords(ctx context.Context, field graphql
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().GetRecords(rctx, args["countryName"].(*string))
+		return ec.resolvers.Query().GetRecords(rctx, args["countryName"].(*string), args["region"].(*string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
