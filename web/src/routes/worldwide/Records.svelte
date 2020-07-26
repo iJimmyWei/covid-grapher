@@ -1,65 +1,86 @@
 <script lang="ts">
-    import type { Query } from "../generated/graphql";
-    import Line from "svelte-chartjs/src/Line.svelte"
-    export let data: Pick<Query, "getRecords">;
+  import type { Query, Record } from "../../generated/graphql";
+  import Line from "svelte-chartjs/src/Line.svelte";
+  export let data: Pick<Query, "getRecords">;
 
-    const sortedData = data.getRecords;
-        // .filter((c) => c.cases >= 0 && c.deaths >= 0) // Strip away outliers
-        // .map((e) => e).sort((a, b) => a > b ? 1 : 0)
-        // .reverse();
+  let allCountries: Record[][] = [];
 
-    // console.log(sortedData);
+  let country = [];
 
-    // TO:DO data interpolation between dates
-    //   let dataLine = {
-    //   labels: sortedData.map((d) => d.dateRep),
-    //   datasets: [
-    //     {
-    //       label: "Number of Deaths",
-    //       fill: false,
-    //       lineTension: 0.1,
-    //       backgroundColor: "rgba(225, 204,230, .3)",
-    //       borderColor: "rgb(205, 130, 158)",
-    //       borderCapStyle: "butt",
-    //       borderDash: [],
-    //       borderDashOffset: 0.0,
-    //       borderJoinStyle: "miter",
-    //       pointBorderColor: "rgb(205, 130,1 58)",
-    //       pointBackgroundColor: "rgb(255, 255, 255)",
-    //       pointBorderWidth: 5,
-    //       pointHoverRadius: 1,
-    //       pointHoverBackgroundColor: "rgb(0, 0, 0)",
-    //       pointHoverBorderColor: "rgb(205, 130,1 58)",
-    //       pointHoverBorderWidth: 0.5,
-    //       pointRadius: 1,
-    //       pointHitRadius: 10,
-    //       data: sortedData.map((d) => d.deaths)
-    //     },
-    //     {
-    //       label: "Number of Cases",
-    //       fill: false,
-    //       lineTension: 0.1,
-    //       backgroundColor: "rgba(71, 225, 167, 0.5)",
-    //       borderColor: "rgb(71, 225, 167)",
-    //       borderCapStyle: "butt",
-    //       borderDash: [],
-    //       borderDashOffset: 0.0,
-    //       borderJoinStyle: "miter",
-    //       pointBorderColor: "rgb(205, 130,1 58)",
-    //       pointBackgroundColor: "rgb(255, 255, 255)",
-    //       pointBorderWidth: 5,
-    //       pointHoverRadius: 1,
-    //       pointHoverBackgroundColor: "rgb(0, 0, 0)",
-    //       pointHoverBorderColor: "rgb(205, 130,1 58)",
-    //       pointHoverBorderWidth: 0.5,
-    //       pointRadius: 1,
-    //       pointHitRadius: 10,
-    //       data: sortedData.map((d) => d.cases)
-    //     },
-    //   ]
-    // };
+  // O(N) fastest way to group by country.. relies on data returned back in order of country and date
+  data.getRecords.forEach((d, index) => {
+    const isLast = data.getRecords.length - 1 === index;
+    if (isLast) {
+        country.push(d);
+
+        country.reverse();
+        allCountries.push(country);
+        return;
+    }
+
+    const nextItem = data.getRecords[index + 1];
+    const nextItemIsDiffCountry =
+        nextItem.countriesAndTerritories !== d.countriesAndTerritories;
+    if (nextItemIsDiffCountry) {
+        country.push(d);
+
+        country.reverse();
+        allCountries.push(country);
+        country = [];
+        return;
+    }
+
+    country.push(d);
+  });
+
+  let options = {
+    legend: {
+      display: false,
+    },
+    hover: {
+        animationDuration: 0,
+    },
+    tooltips: {
+        enabled: true,
+        mode: 'single',
+        callbacks: {
+            label: function(tooltipItems) {
+                const index = tooltipItems.datasetIndex; 
+                const country = allCountries[index][0].countriesAndTerritories.replace(/_/g, " ");
+
+                return tooltipItems.yLabel + ' : ' + country;
+            }
+        }
+    },
+  };
+
+  // Hide large outliers
+  allCountries = allCountries.filter((c) => !c.find((d) => Number.parseFloat(d.cumulative_14d_per_10000) > 500 || Number.parseFloat(d.cumulative_14d_per_10000) < 0));
+
+  let dataLine = {
+    labels: allCountries[0].map((d) => d.dateRep),
+    datasets: allCountries.map((c) => ({
+        fill: false,
+        lineTension: 0,
+        backgroundColor: "rgba(225, 204,230, .3)",
+        borderColor: "rgba(0, 0, 0, .36)",
+        borderCapStyle: "square",
+        borderDash: [],
+        borderDashOffset: 0.0,
+        borderWidth: 1,
+        borderJoinStyle: "round",
+        pointBorderWidth: 0,
+        pointHoverRadius: 1,
+        pointHoverBackgroundColor: "rgb(0, 0, 0)",
+        pointHoverBorderColor: "rgb(205, 130,1 58)",
+        pointHoverBorderWidth: 0,
+        pointRadius: 0,
+        pointHitRadius: 5,
+        data: c.map((d) => d.cumulative_14d_per_10000),
+    })),
+  };
 </script>
 
 <main>
-    <!-- <Line data={dataLine} /> -->
+  <Line data={dataLine} {options} />
 </main>

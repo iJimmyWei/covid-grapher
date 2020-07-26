@@ -35,6 +35,7 @@
 
 <main>
 	<h1>Covid 19 - Worldwide</h1>
+	<h2>Cumulative Cases over 14 days, per 10000</h2>
 	{#await $records}
 		<p>Loading records....</p>
 	{:then result}
@@ -56,6 +57,13 @@
 		color: #ff3e00;
 		text-transform: uppercase;
 		font-size: 4em;
+		font-weight: 100;
+	}
+
+	h2 {
+		color: #ff3e00;
+		text-transform: uppercase;
+		font-size: 2em;
 		font-weight: 100;
 	}
 

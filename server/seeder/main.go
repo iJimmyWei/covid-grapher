@@ -32,7 +32,6 @@ func main() {
 	newContents = newContents + ");"
 
 	// Create indexes
-	newContents = newContents + "db." + collectionName + ".createIndex( { countryterritoryCode: 1 } );"
 	newContents = newContents + "db." + collectionName + ".createIndex( { countriesAndTerritories: 1 } );"
 
 	err = ioutil.WriteFile(path, []byte(newContents), 0)
